@@ -6,6 +6,7 @@ import { database } from '../../services/firebase'; // Certifique-se que db vem 
 
 export default function CriarEmpresa({ navigation }: any) {
   const [nome, setNome] = useState('');
+  const [imagem, setImagem] = useState('https://cdn-icons-png.flaticon.com/512/5984/5984357.png');
   const [descricao, setDescricao] = useState('');
   const [endereco, setEndereco] = useState('');
   const [ramo, setRamo] = useState('');
@@ -18,6 +19,7 @@ export default function CriarEmpresa({ navigation }: any) {
     }
 
     const novaEmpresa = {
+      imagem,
       nome,
       descricao,
       endereco,
@@ -42,6 +44,14 @@ export default function CriarEmpresa({ navigation }: any) {
       <Text variant="headlineMedium" style={styles.title}>
         Criar Empresa
       </Text>
+
+      <TextInput
+        label="Imagem Empresa"
+        value={imagem}
+        onChangeText={setImagem}
+        mode="outlined"
+        style={styles.input}
+      />
 
       <TextInput
         label="Nome Empresa"
@@ -98,6 +108,7 @@ const styles = StyleSheet.create({
     padding: 16,
     flexGrow: 1,
     backgroundColor: '#fff',
+    marginTop: 20
   },
   title: {
     marginBottom: 24,

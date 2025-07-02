@@ -1,14 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Avatar, Button, Card, Text } from 'react-native-paper';
+import { ref, onValue } from 'firebase/database';
+import { database } from '../services/firebase';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="folder" />;
 
-// Suponha que esta lista venha de algum backend ou estado global
-const empresasMock = []; // Substitua por sua lógica de dados
-
 export default function Empresa({ navigation }: any) {
-  const empresas = empresasMock; // Aqui você pode fazer fetch ou usar context/estado
+  const [empresas, setEmpresas] = useState<any[]>([]);
+
+  useEffect(() => {
+    const empresasRef = ref(database, 'empresas');
+
+    const unsubscribe = onValue(empresasRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const listaEmpresas = Object.entries(data).map(([id, value]: any) => ({
+          id,
+          ...value,
+        }));
+        setEmpresas(listaEmpresas);
+      } else {
+        setEmpresas([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const renderItem = ({ item }) => (
     <Card style={styles.card}>
@@ -25,7 +43,7 @@ export default function Empresa({ navigation }: any) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.texto}>
-            Parece que você ainda não possuí uma empresa.
+          Parece que você ainda não possui uma empresa.
         </Text>
         <Button mode="contained" onPress={() => navigation.navigate('CriarEmpresa')}>
           Criar uma empresa
@@ -45,7 +63,7 @@ export default function Empresa({ navigation }: any) {
 
       <FlatList
         data={empresas}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
       />
@@ -57,6 +75,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    marginTop: 20
   },
   emptyContainer: {
     flex: 1,
@@ -73,7 +92,7 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: 16,
   },
-    texto: {
+  texto: {
     marginBottom: 30,
   },
   card: {
