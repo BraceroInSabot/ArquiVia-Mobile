@@ -10,6 +10,8 @@ import { auth } from './src/services/firebase';
 import Login from './src/pages/Login';
 import Cadastro from './src/pages/Cadastro';
 import Inicio from './src/pages/Inicio'
+import Setor from './src/pages/Setor'
+import Footer from './src/components/Footer';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +21,7 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#038C7F',
     secondary: '#F2E7DC',
+    secondaryContainer: '#F2E7DC',
   },
 };
 
@@ -41,7 +44,7 @@ export default function App() {
           <StatusBar style="auto" />
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             {usuarioLogado ? (
-              <Stack.Screen name="Inicio" component={Inicio} />
+              <Stack.Screen name="Inicio" component={Footer} />
             ) : (
               <>
                 <Stack.Screen name="Login" component={Login} />
