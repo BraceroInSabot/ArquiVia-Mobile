@@ -1,29 +1,67 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text } from 'react-native-paper';
+import { TextInput, Button, Text, useTheme } from 'react-native-paper';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { ref, set } from 'firebase/database';
+import { auth, database } from '../services/firebase';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Cadastro({ navigation }: any) {
+export default function Cadastro() {
   const [usuario, setUsuario] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  const [confirmaSenha, setConfirmaSenha] = useState('');
+  const [erro, setErro] = useState('');
   const [senhaVisivel, setSenhaVisivel] = useState(false);
-  const [confirmacaoVisivel, setConfirmacaoVisivel] = useState(false);
-  const [emailInvalido, setEmailInvalido] = useState(false);
+  const [confirmaSenhaVisivel, setConfirmaSenhaVisivel] = useState(false);
 
-  const handleCadastro = () => {
-    const emailEhValido = email.includes('@') && email.includes('.');
-    setEmailInvalido(!emailEhValido);
+  // validação
+  const [emailValido, setEmailValido] = useState(true);
+  const [usuarioValido, setUsuarioValido] = useState(true);
+  const [senhaValida, setSenhaValida] = useState(true);
+  const [senhasIguais, setSenhasIguais] = useState(true);
 
-    if (!emailEhValido) return;
 
-    if (senha !== confirmacaoSenha) {
-      alert('As senhas não coincidem');
+  const validarSenha = (valor: string) => {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return regex.test(valor);
+    };
+
+
+  const theme = useTheme();
+  const navigation = useNavigation();
+
+  const handleCadastro = async () => {
+    setErro('');
+
+    if (!usuario || !email || !senha || !confirmaSenha) {
+      setErro('Preencha todos os campos.');
       return;
     }
 
-    console.log('Usuário cadastrado:', usuario, email);
-    navigation.goBack();
+    if (!email.includes('@') || !email.includes('.')) {
+      setErro('Email inválido.');
+      return;
+    }
+
+    if (senha !== confirmaSenha) {
+      setErro('As senhas não coincidem.');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+      const uid = userCredential.user.uid;
+
+      await set(ref(database, 'users/' + uid), {
+        nome: usuario,
+        email: email,
+      });
+
+      navigation.goBack();
+    } catch (error: any) {
+      setErro('Erro ao cadastrar: ' + error.message);
+    }
   };
 
   return (
@@ -31,63 +69,103 @@ export default function Cadastro({ navigation }: any) {
       <Text style={styles.title}>Criar Conta</Text>
 
       <TextInput
-        label="Usuário"
+        label="Nome de usuário"
         value={usuario}
-        onChangeText={setUsuario}
+        onChangeText={(e) => {
+            setUsuario(e);
+            setUsuarioValido(e.trim().length >= 3);
+        }}
         autoCapitalize="none"
-        autoCorrect={false}
+        style={[
+            styles.input,
+            !usuarioValido && { borderColor: 'red' },
+        ]}
         mode="outlined"
-        style={styles.input}
-      />
+        error={!usuarioValido}
+        />
+        {!usuarioValido && (
+            <Text style={{ color: 'red', marginBottom: 8 }}>
+            Nome de usuário deve ter pelo menos 3 letras
+            </Text>
+            )}
 
       <TextInput
         label="Email"
         value={email}
-        onChangeText={(text) => {
-          setEmail(text);
-          if (emailInvalido) setEmailInvalido(false);
+        onChangeText={(e) => {
+            setEmail(e);
+            setEmailValido(e.includes('@') && e.includes('.'));
         }}
         keyboardType="email-address"
         autoCapitalize="none"
-        autoCorrect={false}
+        style={[
+            styles.input,
+            !emailValido && { borderColor: 'red' },
+        ]}
         mode="outlined"
-        style={styles.input}
-        error={emailInvalido}
-      />
+        error={!emailValido}
+        />
 
       <TextInput
         label="Senha"
         value={senha}
-        onChangeText={setSenha}
+        onChangeText={(e) => {
+            setSenha(e);
+            setSenhaValida(validarSenha(e));
+        }}
         secureTextEntry={!senhaVisivel}
         autoCapitalize="none"
-        autoCorrect={false}
+        style={[
+            styles.input,
+            !senhaValida && { borderColor: 'red' },
+        ]}
         mode="outlined"
-        style={styles.input}
+        error={!senhaValida}
         right={
-          <TextInput.Icon
+            <TextInput.Icon
             icon={senhaVisivel ? 'eye-off' : 'eye'}
             onPress={() => setSenhaVisivel(!senhaVisivel)}
-          />
+            />
         }
-      />
+        />
+
+        {!senhaValida && (
+        <Text style={{ color: 'red', marginBottom: 8 }}>
+            A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, um número e um caractere especial.
+        </Text>
+        )}
+
 
       <TextInput
-        label="Confirmar Senha"
-        value={confirmacaoSenha}
-        onChangeText={setConfirmacaoSenha}
-        secureTextEntry={!confirmacaoVisivel}
+        label="Confirmar senha"
+        value={confirmaSenha}
+        onChangeText={(e) => {
+            setConfirmaSenha(e);
+            setSenhasIguais(e === senha);
+        }}
+        secureTextEntry={!confirmaSenhaVisivel}
         autoCapitalize="none"
-        autoCorrect={false}
+        style={[
+            styles.input,
+            !senhasIguais && { borderColor: 'red' },
+        ]}
         mode="outlined"
-        style={styles.input}
+        error={!senhasIguais}
         right={
-          <TextInput.Icon
-            icon={confirmacaoVisivel ? 'eye-off' : 'eye'}
-            onPress={() => setConfirmacaoVisivel(!confirmacaoVisivel)}
-          />
+            <TextInput.Icon
+            icon={confirmaSenhaVisivel ? 'eye-off' : 'eye'}
+            onPress={() => setConfirmaSenhaVisivel(!confirmaSenhaVisivel)}
+            />
         }
-      />
+        />
+
+        {!senhasIguais && (
+        <Text style={{ color: 'red', marginBottom: 8 }}>
+            As senhas não coincidem.
+        </Text>
+        )}
+
+      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
       <Button mode="contained" onPress={handleCadastro} style={styles.button}>
         Cadastrar
@@ -119,5 +197,10 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+  },
+  erro: {
+    color: 'red',
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });

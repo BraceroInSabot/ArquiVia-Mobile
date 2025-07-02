@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "156575467789",
+    "project_id": "atvfinal-ae6d3",
+    "storage_bucket": "atvfinal-ae6d3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156575467789:android:63232b63ff3ea3c397c844",
+        "android_client_info": {
+          "package_name": "atv.banco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkjL6i5l_XZR4pIFhKb00vwbDlwjPEbnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
