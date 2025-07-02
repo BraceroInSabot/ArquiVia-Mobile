@@ -24,6 +24,7 @@ import EditarEmpresa from './src/pages/EmpresaCRUD/EditarEmpresa';
 
 // Setor
 import CriarSetor from './src/pages/SetorCRUD/CriarSetor';
+import EditarSetor from './src/pages/SetorCRUD/EditarSetor';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -94,6 +95,7 @@ export default function App() {
                 <Stack.Screen name="CriarEmpresa" component={CriarEmpresa} />
                 <Stack.Screen name="EditarEmpresa" component={EditarEmpresa} />
                 <Stack.Screen name="CriarSetor" component={CriarSetor} />
+                <Stack.Screen name="EditarSetor" component={EditarSetor} />
               </>
             ) : (
               <>
