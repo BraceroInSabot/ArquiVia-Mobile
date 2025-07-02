@@ -18,6 +18,7 @@ import Empresa from './src/pages/Empresa';
 import Documentos from './src/pages/Documentos';
 import Usuario from './src/pages/Usuario';
 import CriarEmpresa from './src/pages/EmpresaCRUD/CriarEmpresa';
+import EditarEmpresa from './src/pages/EmpresaCRUD/EditarEmpresa';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,6 +87,7 @@ export default function App() {
               <>
                 <Stack.Screen name="HomeTabs" component={FooterTabs} />
                 <Stack.Screen name="CriarEmpresa" component={CriarEmpresa} />
+                <Stack.Screen name="EditarEmpresa" component={EditarEmpresa} />
               </>
             ) : (
               <>

@@ -76,17 +76,17 @@ export default function Empresa({ navigation }: any) {
         subtitle={item.ramo}
         left={() => renderLeft(item)}
         right={() => (
-          <View style={styles.cardActions}>
+        <View style={styles.cardActions}>
             <IconButton
-              icon="pencil"
-              onPress={() => navigation.navigate('EditarEmpresa', { empresa: item })}
+            icon="pencil"
+            onPress={() => navigation.navigate('EditarEmpresa', { empresaId: item.id, empresaData: item })}
             />
             <IconButton
-              icon="trash-can"
-              iconColor="red"
-              onPress={() => handleRemover(item.id)}
+            icon="trash-can"
+            iconColor="red"
+            onPress={() => handleRemover(item.id)}
             />
-          </View>
+        </View>
         )}
       />
       <Card.Content>
