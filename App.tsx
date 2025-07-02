@@ -17,8 +17,13 @@ import Setor from './src/pages/Setor';
 import Empresa from './src/pages/Empresa';
 import Documentos from './src/pages/Documentos';
 import Usuario from './src/pages/Usuario';
+
+// Empresa
 import CriarEmpresa from './src/pages/EmpresaCRUD/CriarEmpresa';
 import EditarEmpresa from './src/pages/EmpresaCRUD/EditarEmpresa';
+
+// Setor
+import CriarSetor from './src/pages/SetorCRUD/CriarSetor';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -88,6 +93,7 @@ export default function App() {
                 <Stack.Screen name="HomeTabs" component={FooterTabs} />
                 <Stack.Screen name="CriarEmpresa" component={CriarEmpresa} />
                 <Stack.Screen name="EditarEmpresa" component={EditarEmpresa} />
+                <Stack.Screen name="CriarSetor" component={CriarSetor} />
               </>
             ) : (
               <>
