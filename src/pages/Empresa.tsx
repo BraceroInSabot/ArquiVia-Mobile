@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Avatar, Button, Card, Text } from 'react-native-paper';
-import { ref, onValue } from 'firebase/database';
+import { View, StyleSheet, FlatList, Alert, Image } from 'react-native';
+import { Avatar, Button, Card, IconButton, Text } from 'react-native-paper';
+import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../services/firebase';
-
-const LeftContent = props => <Avatar.Icon {...props} icon="folder" />;
 
 export default function Empresa({ navigation }: any) {
   const [empresas, setEmpresas] = useState<any[]>([]);
+  const [errosImagem, setErrosImagem] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const empresasRef = ref(database, 'empresas');
@@ -28,9 +27,68 @@ export default function Empresa({ navigation }: any) {
     return () => unsubscribe();
   }, []);
 
+  const handleRemover = (id: string) => {
+    Alert.alert('Confirmar', 'Deseja remover esta empresa?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const empresaRef = ref(database, `empresas/${id}`);
+            await remove(empresaRef);
+            Alert.alert('Removido', 'Empresa removida com sucesso');
+          } catch (error) {
+            console.error(error);
+            Alert.alert('Erro', 'Falha ao remover a empresa.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const renderLeft = (item) => {
+    const erro = errosImagem[item.id];
+    const url = item.imagem;
+
+    if (!url || erro) {
+      return <Avatar.Icon size={40} icon="briefcase" />;
+    }
+
+    return (
+      <Image
+        source={{ uri: url }}
+        style={styles.avatarImage}
+        onError={() =>
+          setErrosImagem((prev) => ({
+            ...prev,
+            [item.id]: true,
+          }))
+        }
+      />
+    );
+  };
+
   const renderItem = ({ item }) => (
     <Card style={styles.card}>
-      <Card.Title title={item.nome} subtitle={item.ramo} left={LeftContent} />
+      <Card.Title
+        title={item.nome}
+        subtitle={item.ramo}
+        left={() => renderLeft(item)}
+        right={() => (
+          <View style={styles.cardActions}>
+            <IconButton
+              icon="pencil"
+              onPress={() => navigation.navigate('EditarEmpresa', { empresa: item })}
+            />
+            <IconButton
+              icon="trash-can"
+              iconColor="red"
+              onPress={() => handleRemover(item.id)}
+            />
+          </View>
+        )}
+      />
       <Card.Content>
         <Text>{item.descricao}</Text>
         <Text>{item.endereco}</Text>
@@ -75,7 +133,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    marginTop: 20
+    marginTop: 20,
   },
   emptyContainer: {
     flex: 1,
@@ -97,5 +155,15 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 10,
   },
 });
