@@ -1,31 +1,44 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text, useTheme } from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 
-export default function Login({ navigation }: any) {
+export default function Cadastro({ navigation }: any) {
+  const [usuario, setUsuario] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
   const [senhaVisivel, setSenhaVisivel] = useState(false);
+  const [confirmacaoVisivel, setConfirmacaoVisivel] = useState(false);
   const [emailInvalido, setEmailInvalido] = useState(false);
 
-  const theme = useTheme();
-
-  const handleLogin = () => {
+  const handleCadastro = () => {
     const emailEhValido = email.includes('@') && email.includes('.');
     setEmailInvalido(!emailEhValido);
 
     if (!emailEhValido) return;
 
-    console.log('Login com:', email, senha);
-  };
+    if (senha !== confirmacaoSenha) {
+      alert('As senhas não coincidem');
+      return;
+    }
 
-  const handleCadastro = () => {
-    console.log('Ir para tela de cadastro');
+    console.log('Usuário cadastrado:', usuario, email);
+    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo</Text>
+      <Text style={styles.title}>Criar Conta</Text>
+
+      <TextInput
+        label="Usuário"
+        value={usuario}
+        onChangeText={setUsuario}
+        autoCapitalize="none"
+        autoCorrect={false}
+        mode="outlined"
+        style={styles.input}
+      />
 
       <TextInput
         label="Email"
@@ -37,8 +50,8 @@ export default function Login({ navigation }: any) {
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
-        style={styles.input}
         mode="outlined"
+        style={styles.input}
         error={emailInvalido}
       />
 
@@ -49,8 +62,8 @@ export default function Login({ navigation }: any) {
         secureTextEntry={!senhaVisivel}
         autoCapitalize="none"
         autoCorrect={false}
-        style={styles.input}
         mode="outlined"
+        style={styles.input}
         right={
           <TextInput.Icon
             icon={senhaVisivel ? 'eye-off' : 'eye'}
@@ -59,12 +72,29 @@ export default function Login({ navigation }: any) {
         }
       />
 
-      <Button mode="contained" onPress={handleLogin} style={styles.button}>
-        Entrar
+      <TextInput
+        label="Confirmar Senha"
+        value={confirmacaoSenha}
+        onChangeText={setConfirmacaoSenha}
+        secureTextEntry={!confirmacaoVisivel}
+        autoCapitalize="none"
+        autoCorrect={false}
+        mode="outlined"
+        style={styles.input}
+        right={
+          <TextInput.Icon
+            icon={confirmacaoVisivel ? 'eye-off' : 'eye'}
+            onPress={() => setConfirmacaoVisivel(!confirmacaoVisivel)}
+          />
+        }
+      />
+
+      <Button mode="contained" onPress={handleCadastro} style={styles.button}>
+        Cadastrar
       </Button>
 
-      <Button mode="text" onPress={() => navigation.navigate('Cadastro')}>
-        Criar uma conta
+      <Button mode="text" onPress={() => navigation.goBack()}>
+        Voltar
       </Button>
     </View>
   );

@@ -1,42 +1,35 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-
-// Paper
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {
-  MD3LightTheme as DefaultTheme,
-  Provider as PaperProvider,
-} from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
-// Telas
 import Login from './src/pages/Login';
-import SplashScreen from './src/components/SplashScreen';
+import Cadastro from './src/pages/Cadastro';
+
+const Stack = createNativeStackNavigator();
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#038C7F',
+    secondary: '#F2E7DC',
+  },
+};
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
-
-  const theme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      primary: '#038C7F',
-      secondary: '#F2E7DC',
-    },
-  };
-
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        <StatusBar style="light" />
-        <View style={{ flex: 1 }}>
-          {showSplash ? (
-            <SplashScreen onFinish={() => setShowSplash(false)} />
-          ) : (
-            <Login />
-          )}
-        </View>
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Cadastro" component={Cadastro} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </PaperProvider>
     </SafeAreaProvider>
   );
