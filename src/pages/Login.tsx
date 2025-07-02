@@ -1,26 +1,35 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, useTheme } from 'react-native-paper';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../services/firebase';
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [emailInvalido, setEmailInvalido] = useState(false);
+  const [erro, setErro] = useState('');
 
   const theme = useTheme();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const emailEhValido = email.includes('@') && email.includes('.');
     setEmailInvalido(!emailEhValido);
 
     if (!emailEhValido) return;
 
-    console.log('Login com:', email, senha);
-  };
+    try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        navigation.navigate('Inicio'); // redireciona após login
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Inicio' }],
+        });
 
-  const handleCadastro = () => {
-    console.log('Ir para tela de cadastro');
+    } catch (error: any) {
+        setErro('Email ou senha inválidos.');
+    }
   };
 
   return (
@@ -62,6 +71,8 @@ export default function Login({ navigation }: any) {
       <Button mode="contained" onPress={handleLogin} style={styles.button}>
         Entrar
       </Button>
+
+      {erro !== '' && <Text style={{ color: 'red', textAlign: 'center' }}>{erro}</Text>}
 
       <Button mode="text" onPress={() => navigation.navigate('Cadastro')}>
         Criar uma conta
