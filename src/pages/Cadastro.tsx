@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, useTheme } from 'react-native-paper';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 import { auth, database } from '../services/firebase';
 import { useNavigation } from '@react-navigation/native';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  "The action 'GO_BACK' was not", // parte da mensagem do warning
+]);
+
 
 export default function Cadastro() {
-  const [usuario, setUsuario] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmaSenha, setConfirmaSenha] = useState('');
@@ -21,12 +27,10 @@ export default function Cadastro() {
   const [senhaValida, setSenhaValida] = useState(true);
   const [senhasIguais, setSenhasIguais] = useState(true);
 
-
   const validarSenha = (valor: string) => {
     const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     return regex.test(valor);
-    };
-
+  };
 
   const theme = useTheme();
   const navigation = useNavigation();
@@ -34,7 +38,7 @@ export default function Cadastro() {
   const handleCadastro = async () => {
     setErro('');
 
-    if (!usuario || !email || !senha || !confirmaSenha) {
+    if (!displayName || !email || !senha || !confirmaSenha) {
       setErro('Preencha todos os campos.');
       return;
     }
@@ -51,10 +55,17 @@ export default function Cadastro() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+
+      // Atualiza displayName no Firebase Auth
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { displayName: displayName });
+      }
+
       const uid = userCredential.user.uid;
 
+      // Grava dados no Realtime Database
       await set(ref(database, 'users/' + uid), {
-        nome: usuario,
+        displayName: displayName,
         email: email,
       });
 
@@ -70,100 +81,85 @@ export default function Cadastro() {
 
       <TextInput
         label="Nome de usuário"
-        value={usuario}
+        value={displayName}
         onChangeText={(e) => {
-            setUsuario(e);
-            setUsuarioValido(e.trim().length >= 3);
+          setDisplayName(e);
+          setUsuarioValido(e.trim().length >= 3);
         }}
         autoCapitalize="none"
-        style={[
-            styles.input,
-            !usuarioValido && { borderColor: 'red' },
-        ]}
+        style={[styles.input, !usuarioValido && { borderColor: 'red' }]}
         mode="outlined"
         error={!usuarioValido}
-        />
-        {!usuarioValido && (
-            <Text style={{ color: 'red', marginBottom: 8 }}>
-            Nome de usuário deve ter pelo menos 3 letras
-            </Text>
-            )}
+      />
+      {!usuarioValido && (
+        <Text style={{ color: 'red', marginBottom: 8 }}>
+          Nome de usuário deve ter pelo menos 3 letras
+        </Text>
+      )}
 
       <TextInput
         label="Email"
         value={email}
         onChangeText={(e) => {
-            setEmail(e);
-            setEmailValido(e.includes('@') && e.includes('.'));
+          setEmail(e);
+          setEmailValido(e.includes('@') && e.includes('.'));
         }}
         keyboardType="email-address"
         autoCapitalize="none"
-        style={[
-            styles.input,
-            !emailValido && { borderColor: 'red' },
-        ]}
+        style={[styles.input, !emailValido && { borderColor: 'red' }]}
         mode="outlined"
         error={!emailValido}
-        />
+      />
 
       <TextInput
         label="Senha"
         value={senha}
         onChangeText={(e) => {
-            setSenha(e);
-            setSenhaValida(validarSenha(e));
+          setSenha(e);
+          setSenhaValida(validarSenha(e));
         }}
         secureTextEntry={!senhaVisivel}
         autoCapitalize="none"
-        style={[
-            styles.input,
-            !senhaValida && { borderColor: 'red' },
-        ]}
+        style={[styles.input, !senhaValida && { borderColor: 'red' }]}
         mode="outlined"
         error={!senhaValida}
         right={
-            <TextInput.Icon
+          <TextInput.Icon
             icon={senhaVisivel ? 'eye-off' : 'eye'}
             onPress={() => setSenhaVisivel(!senhaVisivel)}
-            />
+          />
         }
-        />
-
-        {!senhaValida && (
+      />
+      {!senhaValida && (
         <Text style={{ color: 'red', marginBottom: 8 }}>
-            A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, um número e um caractere especial.
+          A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, um número e um caractere especial.
         </Text>
-        )}
-
+      )}
 
       <TextInput
         label="Confirmar senha"
         value={confirmaSenha}
         onChangeText={(e) => {
-            setConfirmaSenha(e);
-            setSenhasIguais(e === senha);
+          setConfirmaSenha(e);
+          setSenhasIguais(e === senha);
         }}
         secureTextEntry={!confirmaSenhaVisivel}
         autoCapitalize="none"
-        style={[
-            styles.input,
-            !senhasIguais && { borderColor: 'red' },
-        ]}
+        style={[styles.input, !senhasIguais && { borderColor: 'red' }]}
         mode="outlined"
         error={!senhasIguais}
         right={
-            <TextInput.Icon
+          <TextInput.Icon
             icon={confirmaSenhaVisivel ? 'eye-off' : 'eye'}
             onPress={() => setConfirmaSenhaVisivel(!confirmaSenhaVisivel)}
-            />
+          />
         }
-        />
-
-        {!senhasIguais && (
+      />
+      {!senhasIguais && (
         <Text style={{ color: 'red', marginBottom: 8 }}>
-            As senhas não coincidem.
+          As senhas não coincidem.
         </Text>
-        )}
+      )}
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 

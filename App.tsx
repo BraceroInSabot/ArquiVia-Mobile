@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { onAuthStateChanged } from 'firebase/auth';
+import { LogBox } from 'react-native';
 
 import { auth } from './src/services/firebase';
 
@@ -29,6 +30,13 @@ import EditarSetor from './src/pages/SetorCRUD/EditarSetor';
 // Documento
 import CriarDocumento from './src/pages/DocumentoCRUD/CriarDocumento';
 import EditarDocumento from './src/pages/DocumentoCRUD/EditarDocumento'
+
+
+LogBox.ignoreLogs([
+  "The action 'RESET' with payload", // parte da mensagem do warning
+  "The action 'NAVIGATE' with payload"
+]);
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
