@@ -1,4 +1,4 @@
-# App de Cadastro com Firebase e React Native
+# App de Documentação Corporativa com Firebase e React Native
 
 Este é um aplicativo mobile desenvolvido com **React Native** e **React Native Paper**, utilizando o **Firebase Authentication** e **Realtime Database** para que o usuário possa organizar seus documentos em um ambiente corporativo. O sistema permite criar contas com validação de senha, salvando dados no Auth e no banco de dados, além de possuir 3 cruds disponíveis de Empresas, Setores e Documentos.
 
